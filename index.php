@@ -7,7 +7,32 @@ require_once __DIR__ . '/functions.php';
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     $keyword = filter_input(INPUT_GET, 'keyword');
+
+
+    // データベースに接続
+    $dbh = connect_db();
+    $keyword_param = '%' . $keyword . '%';
+
+
+    if (($keyword) != '') {
+        // SQL文の組み立て
+        $sql = 'SELECT * FROM animals WHERE description LIKE :keyword_param';
+        $stmt = $dbh->prepare($sql);
+
+        $stmt->bindParam("keyword_param", $keyword_param, PDO::PARAM_STR);
+    } else {
+        $sql = 'SELECT * FROM animals';
+
+        // プリペアドステートメントの準備
+        // $dbh->query($sql) でも良い
+        $stmt = $dbh->prepare($sql);
+    }
 }
+// プリペアドステートメントの実行
+$stmt->execute();
+
+// 結果の受け取り
+$animals = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -28,41 +53,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         <input type="submit" name="submit" value="検索">
     </form>
     <div>
-        <?php
-        // データベースに接続
-        $dbh = connect_db();
-        $keyword_param = '%' . $keyword . '%';
 
-
-        if (($keyword) != '')  {
-        // SQL文の組み立て
-        $sql = 'SELECT * FROM animals WHERE description LIKE :keyword_param';
-        $stmt = $dbh->prepare($sql);
-
-        $stmt->bindParam("keyword_param", $keyword_param, PDO::PARAM_STR);
-
-        }else {
-        $sql = 'SELECT * FROM animals';
-
-        // プリペアドステートメントの準備
-        // $dbh->query($sql) でも良い
-        $stmt = $dbh->prepare($sql);
-        }
-
-        // プリペアドステートメントの実行
-        $stmt->execute();
-
-        // 結果の受け取り
-        $animals = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        ?>
-        <?php foreach ($animals as $animals): ?>
+        <?php foreach ($animals as $animals) : ?>
             <?= h($animals['type']) . 'の' . h($animals['classification']) . 'ちゃん' ?><br>
             <?= h($animals['description'])  ?><br>
             <?= h($animals['birthday']) . ' 生まれ'  ?><br>
             <?= '出身地 ' . h($animals['birthplace'])  ?><br>
             <hr width="100%">
         <?php endforeach; ?>
-        
+
     </div>
 
 </body>
