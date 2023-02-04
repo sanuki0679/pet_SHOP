@@ -8,7 +8,6 @@ require_once __DIR__ . '/functions.php';
 //
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-
     $keyword = filter_input(INPUT_GET, 'keyword');
 }
 ?>
@@ -34,18 +33,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         <?php
         // データベースに接続
         $dbh = connect_db();
-        $keyword_param = '%' . $keyword . '%';
-        $keyword_param  = $_REQUEST['keyword_param'];
-
+        $keyword_param = '%'.$keyword.'%';
+        var_dump($keyword_param);
+        $birthplace = $keyword;
 
         // SQL文の組み立て
         //$sql = 'SELECT * FROM animals';
 
-        $sql = 'SELECT * FROM animals WHERE description LIKE $keyword_param';
-        
+        $sql = 'SELECT * FROM animals WHERE description LIKE keyword_param = :keyword_param';
+        //$sql = 'SELECT * FROM animals WHERE birthplace = :birthplace';
         // プリペアドステートメントの準備
         // $dbh->query($sql) でも良い
         $stmt = $dbh->prepare($sql);
+
+        $stmt->bindParam("keyword_param", $keyword_param);
+        //$stmt->bindParam("birthplace", $birthplace);
 
         // プリペアドステートメントの実行
         $stmt->execute();
