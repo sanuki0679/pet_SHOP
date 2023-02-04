@@ -3,8 +3,6 @@
 // 関数ファイルを読み込む
 require_once __DIR__ . '/functions.php';
 
-
-
 //
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
@@ -33,21 +31,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         <?php
         // データベースに接続
         $dbh = connect_db();
-        $keyword_param = '%'.$keyword.'%';
-        var_dump($keyword_param);
-        $birthplace = $keyword;
+        $keyword_param = '%' . $keyword . '%';
+        
+        //$birthplace = $keyword;
 
         // SQL文の組み立て
         //$sql = 'SELECT * FROM animals';
-
+        //$sql = 'SELECT * FROM animals WHERE description LIKE:keyword_param';
         $sql = 'SELECT * FROM animals WHERE description LIKE keyword_param = :keyword_param';
         //$sql = 'SELECT * FROM animals WHERE birthplace = :birthplace';
+        
         // プリペアドステートメントの準備
         // $dbh->query($sql) でも良い
         $stmt = $dbh->prepare($sql);
-
+        
+        //$stmt->bindParam("keyword_param", $keyword_param, PDO::PARAM_STR);
         $stmt->bindParam("keyword_param", $keyword_param);
-        //$stmt->bindParam("birthplace", $birthplace);
+        //$stmt->bindParam("birthplace", $birthplace,PDO::PARAM_STR);
 
         // プリペアドステートメントの実行
         $stmt->execute();
